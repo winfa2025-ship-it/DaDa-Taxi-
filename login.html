@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DaDa Taxi - Driver Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B00',
+                        primaryDark: '#E55A00',
+                        primaryLight: '#FF8533',
+                        dark: '#1A1A1A',
+                        darkLight: '#2D2D2D',
+                        darkLighter: '#3D3D3D',
+                        accent: '#00D4AA',
+                        warning: '#FFB800',
+                        danger: '#FF3B3B',
+                        success: '#00C853',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Outfit', sans-serif; }
+        .font-mono { font-family: 'Space Mono', monospace; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1A1A1A; }
+        ::-webkit-scrollbar-thumb { background: #FF6B00; border-radius: 3px; }
+        
+        .glass { 
+            background: rgba(45, 45, 45, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 107, 0, 0.2);
+        }
+        
+        .glass-card {
+            background: linear-gradient(135deg, rgba(45, 45, 45, 0.9) 0%, rgba(30, 30, 30, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #FF6B00 0%, #FF8533 50%, #FF6B00 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+            box-shadow: 0 4px 20px rgba(255, 107, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 107, 0, 0.5);
+        }
+        
+        .btn-google {
+            background: linear-gradient(135deg, #4285F4 0%, #34A853 100%);
+            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-google:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(66, 133, 244, 0.4);
+        }
+        
+        .glow-orange {
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.3), 0 0 60px rgba(255, 107, 0, 0.1);
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade { animation: fadeIn 0.5s ease forwards; }
+        
+        .input-field {
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #FF6B00;
+            box-shadow: 0 0 20px rgba(255, 107, 0, 0.2);
+            outline: none;
+        }
+        
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+        
+        .country-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .country-item {
+            transition: all 0.3s ease;
+        }
+        .country-item:hover {
+            background: rgba(255, 107, 0, 0.1);
+            border-color: rgba(255, 107, 0, 0.5);
+        }
+        .country-item.selected {
+            background: rgba(255, 107, 0, 0.2);
+            border-color: #FF6B00;
+        }
+        
+        .step-indicator {
+            transition: all 0.3s ease;
+        }
+        .step-indicator.active {
+            background: #FF6B00;
+            box-shadow: 0 0 10px rgba(255, 107, 0, 0.5);
+        }
+        .step-indicator.completed {
+            background: #00C853;
+        }
+        
+        .kyc-status {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body class="bg-dark text-white min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <!-- Logo -->
+        <div class="text-center mb-8 animate-fade">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-primaryLight glow-orange mb-4">
+                <i data-lucide="car" class="w-10 h-10 text-white"></i>
+            </div>
+            <h1 class="text-3xl font-bold">DaDa Taxi</h1>
+            <p class="text-gray-400 mt-1">Driver Edition</p>
+        </div>
+        
+        <!-- Login Form -->
+        <div id="loginForm" class="form-section active">
+            <div class="glass-card rounded-3xl p-6 animate-fade">
+                <h2 class="text-xl font-bold mb-6 text-center">Welcome Back</h2>
+                
+                <!-- Language Selector -->
+                <div class="mb-6">
+                    <div class="relative">
+                        <button onclick="toggleDropdown('langDropdown')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl input-field">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="globe" class="w-5 h-5 text-gray-400"></i>
+                                <span id="selectedLang">English</span>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400"></i>
+                        </button>
+                        <div id="langDropdown" class="hidden absolute w-full mt-2 glass-card rounded-xl overflow-hidden z-10">
+                            <div class="p-2 max-h-48 overflow-y-auto">
+                                <button onclick="setLanguage('English', '🇺🇸')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm flex items-center gap-2">🇺🇸 English</button>
+                                <button onclick="setLanguage('中文', '🇨🇳')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm flex items-center gap-2">🇨🇳 中文</button>
+                                <button onclick="setLanguage('日本語', '🇯🇵')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm flex items-center gap-2">🇯🇵 日本語</button>
+                                <button onclick="setLanguage('한국어', '🇰🇷')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm flex items-center gap-2">🇰🇷 한국어</button>
+                                <button onclick="setLanguage('Español', '🇪🇸')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm flex items-center gap-2">🇪🇸 Español</button>
+                                <button onclick="setLanguage('Français', '🇫🇷')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm flex items-center gap-2">🇫🇷 Français</button>
+                                <button onclick="setLanguage('Deutsch', '🇩🇪')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm flex items-center gap-2">🇩🇪 Deutsch</button>
+                                <button onclick="setLanguage('Português', '🇵🇹')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm flex items-center gap-2">🇵🇹 Português</button>
+                                <button onclick="setLanguage('繁體中文', '🇹🇼')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm flex items-center gap-2">🇹🇼 繁體中文</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Email Input -->
+                <div class="mb-4">
+                    <label class="text-xs text-gray-500 block mb-2">Email Address</label>
+                    <div class="relative">
+                        <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <input type="email" placeholder="your@email.com" class="w-full pl-12 pr-4 py-3 rounded-xl input-field text-white placeholder-gray-500">
+                    </div>
+                </div>
+                
+                <!-- Password Input -->
+                <div class="mb-6">
+                    <label class="text-xs text-gray-500 block mb-2">Password</label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full pl-12 pr-12 py-3 rounded-xl input-field text-white placeholder-gray-500">
+                        <button onclick="togglePassword('loginPassword')" class="absolute right-4 top-1/2 -translate-y-1/2">
+                            <i data-lucide="eye" class="w-5 h-5 text-gray-400"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Login Button -->
+                <button onclick="handleLogin()" class="w-full py-3 rounded-xl btn-primary font-semibold text-lg mb-4">
+                    Login
+                </button>
+                
+                <!-- Google Login -->
+                <button onclick="handleGoogleLogin()" class="w-full py-3 rounded-xl btn-google font-semibold flex items-center justify-center gap-3 mb-4">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="white">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continue with Google
+                </button>
+                
+                <!-- Forgot Password -->
+                <div class="text-center mb-4">
+                    <a href="#" class="text-primary text-sm hover:underline">Forgot Password?</a>
+                </div>
+                
+                <!-- Divider -->
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="flex-1 h-px bg-gray-600"></div>
+                    <span class="text-gray-500 text-sm">or</span>
+                    <div class="flex-1 h-px bg-gray-600"></div>
+                </div>
+                
+                <!-- Register Link -->
+                <p class="text-center text-gray-400 text-sm">
+                    Don't have an account?
+                    <button onclick="showForm('register')" class="text-primary font-medium hover:underline ml-1">Register</button>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Registration Form -->
+        <div id="registerForm" class="form-section">
+            <div class="glass-card rounded-3xl p-6 animate-fade">
+                <!-- Progress Steps -->
+                <div class="flex items-center justify-center gap-2 mb-6">
+                    <div id="step1" class="step-indicator active w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold bg-darkLighter">1</div>
+                    <div class="w-8 h-0.5 bg-gray-600"></div>
+                    <div id="step2" class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold bg-darkLighter">2</div>
+                    <div class="w-8 h-0.5 bg-gray-600"></div>
+                    <div id="step3" class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold bg-darkLighter">3</div>
+                    <div class="w-8 h-0.5 bg-gray-600"></div>
+                    <div id="step4" class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold bg-darkLighter">4</div>
+                </div>
+                
+                <!-- Step 1: Basic Info -->
+                <div id="regStep1" class="reg-step">
+                    <h2 class="text-xl font-bold mb-2 text-center">Create Account</h2>
+                    <p class="text-gray-400 text-sm text-center mb-6">Enter your details to get started</p>
+                    
+                    <!-- Language Selection -->
+                    <div class="mb-4">
+                        <label class="text-xs text-gray-500 block mb-2">Interface Language</label>
+                        <select class="w-full px-4 py-3 rounded-xl input-field text-white">
+                            <option>🇺🇸 English</option>
+                            <option>🇨🇳 中文</option>
+                            <option>🇹🇼 繁體中文</option>
+                            <option>🇯🇵 日本語</option>
+                            <option>🇰🇷 한국어</option>
+                            <option>🇪🇸 Español</option>
+                            <option>🇫🇷 Français</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Name -->
+                    <div class="mb-4">
+                        <label class="text-xs text-gray-500 block mb-2">Full Name</label>
+                        <input type="text" placeholder="John Smith" class="w-full px-4 py-3 rounded-xl input-field text-white placeholder-gray-500">
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="mb-4">
+                        <label class="text-xs text-gray-500 block mb-2">Email Address</label>
+                        <input type="email" placeholder="your@email.com" class="w-full px-4 py-3 rounded-xl input-field text-white placeholder-gray-500">
+                    </div>
+                    
+                    <!-- Phone -->
+                    <div class="mb-4">
+                        <label class="text-xs text-gray-500 block mb-2">Phone Number</label>
+                        <div class="flex gap-2">
+                            <select class="w-24 px-3 py-3 rounded-xl input-field text-white text-sm">
+                                <option>+852</option>
+                                <option>+886</option>
+                                <option>+81</option>
+                                <option>+1</option>
+                                <option>+44</option>
+                            </select>
+                            <input type="tel" placeholder="9123 4567" class="flex-1 px-4 py-3 rounded-xl input-field text-white placeholder-gray-500">
+                        </div>
+                    </div>
+                    
+                    <!-- Password -->
+                    <div class="mb-4">
+                        <label class="text-xs text-gray-500 block mb-2">Password</label>
+                        <div class="relative">
+                            <input type="password" id="regPassword" placeholder="Min 8 characters" class="w-full px-4 py-3 rounded-xl input-field text-white placeholder-gray-500">
+                            <button onclick="togglePassword('regPassword')" class="absolute right-4 top-1/2 -translate-y-1/2">
+                                <i data-lucide="eye" class="w-5 h-5 text-gray-400"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirm Password -->
+                    <div class="mb-6">
+                        <label class="text-xs text-gray-500 block mb-2">Confirm Password</label>
+                        <input type="password" placeholder="Re-enter password" class="w-full px-4 py-3 rounded-xl input-field text-white placeholder-gray-500">
+                    </div>
+                    
+                    <button onclick="nextStep(2)" class="w-full py-3 rounded-xl btn-primary font-semibold">
+                        Continue
+                    </button>
+                </div>
+                
+                <!-- Step 2: Region Selection -->
+                <div id="regStep2" class="reg-step hidden">
+                    <h2 class="text-xl font-bold mb-2 text-center">Select Region</h2>
+                    <p class="text-gray-400 text-sm text-center mb-6">Choose your service region</p>
+                    
+                    <div class="country-grid">
+                        <button onclick="selectCountry(this, 'Hong Kong')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇭🇰</span>
+                            <span class="text-sm">Hong Kong</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'Taiwan')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇹🇼</span>
+                            <span class="text-sm">Taiwan</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'Japan')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇯🇵</span>
+                            <span class="text-sm">Japan</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'Singapore')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇸🇬</span>
+                            <span class="text-sm">Singapore</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'United States')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇺🇸</span>
+                            <span class="text-sm">USA</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'United Kingdom')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇬🇧</span>
+                            <span class="text-sm">UK</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'Australia')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇦🇺</span>
+                            <span class="text-sm">Australia</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'Canada')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇨🇦</span>
+                            <span class="text-sm">Canada</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'Germany')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇩🇪</span>
+                            <span class="text-sm">Germany</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'France')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇫🇷</span>
+                            <span class="text-sm">France</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'South Korea')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇰🇷</span>
+                            <span class="text-sm">Korea</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'Thailand')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇹🇭</span>
+                            <span class="text-sm">Thailand</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'Malaysia')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇲🇾</span>
+                            <span class="text-sm">Malaysia</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'India')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇮🇳</span>
+                            <span class="text-sm">India</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'Brazil')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇧🇷</span>
+                            <span class="text-sm">Brazil</span>
+                        </button>
+                        <button onclick="selectCountry(this, 'Mexico')" class="country-item p-3 rounded-xl bg-darkLighter border border-transparent flex items-center gap-2">
+                            <span class="text-xl">🇲🇽</span>
+                            <span class="text-sm">Mexico</span>
+                        </button>
+                    </div>
+                    
+                    <p id="selectedCountryText" class="text-center text-gray-400 text-sm mt-4">No region selected</p>
+                    
+                    <div class="flex gap-3 mt-6">
+                        <button onclick="prevStep(1)" class="flex-1 py-3 rounded-xl bg-darkLighter font-semibold">
+                            Back
+                        </button>
+                        <button onclick="nextStep(3)" class="flex-1 py-3 rounded-xl btn-primary font-semibold">
+                            Continue
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Vehicle & Invite -->
+                <div id="regStep3" class="reg-step hidden">
+                    <h2 class="text-xl font-bold mb-2 text-center">Vehicle & Invite</h2>
+                    <p class="text-gray-400 text-sm text-center mb-6">Tell us about your vehicle</p>
+                    
+                    <!-- Vehicle Type -->
+                    <div class="mb-4">
+                        <label class="text-xs text-gray-500 block mb-2">Vehicle Type</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="selectVehicleType(this, 'taxi')" class="vehicle-type-btn p-3 rounded-xl bg-darkLighter border-2 border-transparent flex flex-col items-center gap-1 transition hover:border-primary">
+                                <i data-lucide="car" class="w-6 h-6"></i>
+                                <span class="text-xs">Taxi</span>
+                            </button>
+                            <button onclick="selectVehicleType(this, 'truck')" class="vehicle-type-btn p-3 rounded-xl bg-darkLighter border-2 border-transparent flex flex-col items-center gap-1 transition hover:border-primary">
+                                <i data-lucide="truck" class="w-6 h-6"></i>
+                                <span class="text-xs">Truck</span>
+                            </button>
+                            <button onclick="selectVehicleType(this, 'private')" class="vehicle-type-btn p-3 rounded-xl bg-darkLighter border-2 border-transparent flex flex-col items-center gap-1 transition hover:border-primary">
+                                <i data-lucide="car-taxi-front" class="w-6 h-6"></i>
+                                <span class="text-xs">Private</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Vehicle Make/Model -->
+                    <div class="mb-4">
+                        <label class="text-xs text-gray-500 block mb-2">Vehicle Make & Model</label>
+                        <input type="text" placeholder="Toyota Camry 2023" class="w-full px-4 py-3 rounded-xl input-field text-white placeholder-gray-500">
+                    </div>
+                    
+                    <!-- License Plate -->
+                    <div class="mb-4">
+                        <label class="text-xs text-gray-500 block mb-2">License Plate</label>
+                        <input type="text" placeholder="AB 1234 CD" class="w-full px-4 py-3 rounded-xl input-field text-white placeholder-gray-500">
+                    </div>
+                    
+                    <!-- Invite Code -->
+                    <div class="mb-6">
+                        <label class="text-xs text-gray-500 block mb-2">Invite Code (Optional)</label>
+                        <input type="text" id="inviteCode" placeholder="Enter code if you have one" class="w-full px-4 py-3 rounded-xl input-field text-white placeholder-gray-500">
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="prevStep(2)" class="flex-1 py-3 rounded-xl bg-darkLighter font-semibold">
+                            Back
+                        </button>
+                        <button onclick="nextStep(4)" class="flex-1 py-3 rounded-xl btn-primary font-semibold">
+                            Continue
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 4: KYC Verification -->
+                <div id="regStep4" class="reg-step hidden">
+                    <h2 class="text-xl font-bold mb-2 text-center">Identity Verification</h2>
+                    <p class="text-gray-400 text-sm text-center mb-6">Complete KYC via Stripe</p>
+                    
+                    <div class="text-center mb-6">
+                        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-accent to-success mb-4">
+                            <i data-lucide="shield-check" class="w-10 h-10 text-white"></i>
+                        </div>
+                        <p class="text-gray-400 text-sm">Secure verification powered by Stripe</p>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center gap-3 p-3 rounded-xl bg-darkLighter">
+                            <i data-lucide="id-card" class="w-5 h-5 text-gray-400"></i>
+                            <span class="text-sm">Government ID verification</span>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-gray-500 ml-auto"></i>
+                        </div>
+                        <div class="flex items-center gap-3 p-3 rounded-xl bg-darkLighter">
+                            <i data-lucide="camera" class="w-5 h-5 text-gray-400"></i>
+                            <span class="text-sm">Selfie verification</span>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-gray-500 ml-auto"></i>
+                        </div>
+                        <div class="flex items-center gap-3 p-3 rounded-xl bg-darkLighter">
+                            <i data-lucide="file-text" class="w-5 h-5 text-gray-400"></i>
+                            <span class="text-sm">Driver's license check</span>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-gray-500 ml-auto"></i>
+                        </div>
+                    </div>
+                    
+                    <button onclick="startKYC()" class="w-full py-3 rounded-xl btn-primary font-semibold mb-3">
+                        Start Stripe KYC Verification
+                    </button>
+                    
+                    <p class="text-xs text-gray-500 text-center">
+                        By continuing, you agree to our 
+                        <a href="#" class="text-primary">Terms of Service</a> and 
+                        <a href="#" class="text-primary">Privacy Policy</a>
+                    </p>
+                    
+                    <div class="flex gap-3 mt-4">
+                        <button onclick="prevStep(3)" class="flex-1 py-3 rounded-xl bg-darkLighter font-semibold">
+                            Back
+                        </button>
+                        <button onclick="completeRegistration()" class="flex-1 py-3 rounded-xl btn-primary font-semibold">
+                            Complete
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Back to Login -->
+                <p class="text-center text-gray-400 text-sm mt-4">
+                    Already have an account?
+                    <button onclick="showForm('login')" class="text-primary font-medium hover:underline ml-1">Login</button>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Subscription Required Notice -->
+        <div id="subscriptionNotice" class="hidden">
+            <div class="glass-card rounded-3xl p-6 animate-fade text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-warning to-primary mb-4">
+                    <i data-lucide="crown" class="w-10 h-10 text-white"></i>
+                </div>
+                <h2 class="text-xl font-bold mb-2">Subscription Required</h2>
+                <p class="text-gray-400 text-sm mb-6">Subscribe to start accepting ride requests</p>
+                
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="p-3 rounded-xl bg-darkLighter">
+                        <p class="text-lg font-bold text-primary">$1</p>
+                        <p class="text-xs text-gray-400">1 Month</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-darkLighter border border-primary">
+                        <p class="text-lg font-bold text-primary">$10</p>
+                        <p class="text-xs text-gray-400">12 Months</p>
+                        <span class="text-xs text-success">Best Value</span>
+                    </div>
+                </div>
+                
+                <button onclick="showSubscriptionPage()" class="w-full py-3 rounded-xl btn-primary font-semibold">
+                    View Plans
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Form navigation
+        function showForm(formName) {
+            document.querySelectorAll('.form-section').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.getElementById(formName + 'Form').classList.add('active');
+            lucide.createIcons();
+        }
+        
+        // Registration steps
+        function nextStep(step) {
+            document.querySelectorAll('.reg-step').forEach(s => s.classList.add('hidden'));
+            document.getElementById('regStep' + step).classList.remove('hidden');
+            
+            // Update indicators
+            for (let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById('step' + i);
+                indicator.classList.remove('active', 'completed');
+                if (i < step) {
+                    indicator.classList.add('completed');
+                } else if (i === step) {
+                    indicator.classList.add('active');
+                }
+            }
+            lucide.createIcons();
+        }
+        
+        function prevStep(step) {
+            nextStep(step);
+        }
+        
+        // Language
+        function toggleDropdown(id) {
+            document.getElementById(id).classList.toggle('hidden');
+        }
+        
+        function setLanguage(lang, flag) {
+            document.getElementById('selectedLang').textContent = lang;
+            document.getElementById('langDropdown').classList.add('hidden');
+        }
+        
+        // Password visibility
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+        
+        // Country selection
+        let selectedCountry = null;
+        function selectCountry(element, country) {
+            document.querySelectorAll('.country-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedCountry = country;
+            document.getElementById('selectedCountryText').textContent = 'Selected: ' + country;
+            document.getElementById('selectedCountryText').classList.remove('text-gray-400');
+            document.getElementById('selectedCountryText').classList.add('text-primary');
+        }
+        
+        // Vehicle type selection
+        function selectVehicleType(element, type) {
+            document.querySelectorAll('.vehicle-type-btn').forEach(btn => {
+                btn.classList.remove('border-primary');
+                btn.classList.add('border-transparent');
+            });
+            element.classList.remove('border-transparent');
+            element.classList.add('border-primary');
+        }
+        
+        // Login handlers
+        function handleLogin() {
+            // Simulate login - in production, validate with backend
+            window.location.href = 'index.html';
+        }
+        
+        function handleGoogleLogin() {
+            // Google OAuth - in production, use Google Identity Services
+            alert('Google login would redirect to Google OAuth flow');
+        }
+        
+        // KYC
+        function startKYC() {
+            // In production, this would redirect to Stripe Identity verification
+            alert('Redirecting to Stripe KYC verification...\n\nIn production, this would open Stripe Identity flow.');
+        }
+        
+        // Complete registration
+        function completeRegistration() {
+            // Check for VIP code (hidden functionality)
+            const inviteCode = document.getElementById('inviteCode').value.toUpperCase();
+            if (inviteCode === 'VIP888') {
+                // VIP888 grants permanent free access
+                alert('🎉 Congratulations! Your VIP code grants permanent free access!\n\nRedirecting to dashboard...');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Normal registration - requires subscription
+            document.querySelectorAll('.form-section').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.getElementById('subscriptionNotice').classList.remove('hidden');
+            document.getElementById('subscriptionNotice').classList.add('active');
+            lucide.createIcons();
+        }
+        
+        function showSubscriptionPage() {
+            window.location.href = 'index.html';
+        }
+        
+        // Close dropdowns on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#langDropdown') && !e.target.closest('[onclick*="langDropdown"]')) {
+                document.getElementById('langDropdown').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

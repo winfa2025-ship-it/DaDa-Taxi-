@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DaDa Taxi - Driver Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B00',
+                        primaryDark: '#E55A00',
+                        primaryLight: '#FF8533',
+                        dark: '#1A1A1A',
+                        darkLight: '#2D2D2D',
+                        darkLighter: '#3D3D3D',
+                        accent: '#00D4AA',
+                        warning: '#FFB800',
+                        danger: '#FF3B3B',
+                        success: '#00C853',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Outfit', sans-serif; }
+        .font-mono { font-family: 'Space Mono', monospace; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1A1A1A; }
+        ::-webkit-scrollbar-thumb { background: #FF6B00; border-radius: 3px; }
+        
+        .glass { 
+            background: rgba(45, 45, 45, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 107, 0, 0.2);
+        }
+        
+        .glass-card {
+            background: linear-gradient(135deg, rgba(45, 45, 45, 0.9) 0%, rgba(30, 30, 30, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #FF6B00 0%, #FF8533 50%, #FF6B00 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+            box-shadow: 0 4px 20px rgba(255, 107, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 107, 0, 0.5);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #2D2D2D 0%, #3D3D3D 100%);
+            border: 1px solid rgba(255, 107, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            border-color: rgba(255, 107, 0, 0.6);
+            transform: translateY(-1px);
+        }
+        
+        .glow-orange {
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.3), 0 0 60px rgba(255, 107, 0, 0.1);
+        }
+        
+        .sidebar-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: #FF6B00;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        .sidebar-item:hover::before, .sidebar-item.active::before {
+            transform: scaleY(1);
+        }
+        .sidebar-item:hover, .sidebar-item.active {
+            background: linear-gradient(90deg, rgba(255, 107, 0, 0.15) 0%, transparent 100%);
+        }
+        
+        .income-card {
+            background: linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(0, 212, 170, 0.05) 100%);
+            border: 1px solid rgba(255, 107, 0, 0.2);
+        }
+        
+        .status-online { 
+            animation: pulse 2s infinite;
+            background: #00C853;
+            box-shadow: 0 0 15px rgba(0, 200, 83, 0.5);
+        }
+        .status-offline { background: #666; }
+        .status-busy { background: #FFB800; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-slide { animation: slideIn 0.4s ease forwards; }
+        .animate-fade { animation: fadeIn 0.3s ease forwards; }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        .nav-item:hover {
+            transform: translateY(-2px);
+        }
+        .nav-item.active {
+            color: #FF6B00;
+        }
+        .nav-item.active .nav-indicator {
+            width: 100%;
+            opacity: 1;
+        }
+        
+        .order-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .order-card:hover {
+            transform: translateX(5px);
+            border-color: rgba(255, 107, 0, 0.5);
+        }
+        
+        .map-container {
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .map-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255, 107, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 107, 0, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        
+        .premium-badge {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        .subscription-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .subscription-card:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+        .subscription-card.popular {
+            border: 2px solid #FF6B00;
+            box-shadow: 0 0 40px rgba(255, 107, 0, 0.2);
+        }
+        
+        .notification-badge {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-dark text-white min-h-screen">
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-darkLight z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+        <div class="p-6 border-b border-darkLighter">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primaryLight flex items-center justify-center glow-orange">
+                    <i data-lucide="car" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white">DaDa Taxi</h1>
+                    <span class="text-xs text-primary font-medium">Driver Edition</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Driver Status -->
+        <div class="p-4 mx-4 mt-4 glass-card rounded-xl">
+            <div class="flex items-center justify-between">
+                <span class="text-gray-400 text-sm">Status</span>
+                <div class="flex items-center gap-2">
+                    <div id="statusDot" class="w-3 h-3 rounded-full status-online"></div>
+                    <span id="statusText" class="text-sm font-medium text-success">Online</span>
+                </div>
+            </div>
+            <button onclick="toggleStatus()" class="w-full mt-3 py-2 rounded-lg btn-secondary text-sm font-medium">
+                Change Status
+            </button>
+        </div>
+        
+        <!-- Income Overview -->
+        <div class="p-4 mx-4 mt-4 income-card rounded-xl">
+            <h3 class="text-gray-400 text-xs uppercase tracking-wider mb-3">Income Overview</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 text-sm">Today</span>
+                    <span class="text-white font-mono font-bold">$45.80</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 text-sm">This Week</span>
+                    <span class="text-white font-mono font-bold">$312.50</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 text-sm">This Month</span>
+                    <span class="text-primary font-mono font-bold text-lg">$1,245.80</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Menu -->
+        <nav class="mt-6 px-3">
+            <div class="space-y-1">
+                <button onclick="showPage('home')" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="home">
+                    <i data-lucide="home" class="w-5 h-5 text-primary"></i>
+                    <span class="font-medium">Home</span>
+                </button>
+                <button onclick="showPage('orders')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="orders">
+                    <i data-lucide="clipboard-list" class="w-5 h-5 text-gray-400"></i>
+                    <span class="font-medium text-gray-300">My Orders</span>
+                    <span class="ml-auto bg-primary text-white text-xs px-2 py-0.5 rounded-full">3</span>
+                </button>
+                <button onclick="showPage('active')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="active">
+                    <i data-lucide="navigation" class="w-5 h-5 text-gray-400"></i>
+                    <span class="font-medium text-gray-300">Active Orders</span>
+                    <span class="ml-auto w-2 h-2 rounded-full bg-success"></span>
+                </button>
+                <button onclick="showPage('completed')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="completed">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-gray-400"></i>
+                    <span class="font-medium text-gray-300">Completed</span>
+                </button>
+                <button onclick="showPage('cancelled')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="cancelled">
+                    <i data-lucide="x-circle" class="w-5 h-5 text-gray-400"></i>
+                    <span class="font-medium text-gray-300">Cancelled</span>
+                </button>
+                <button onclick="showPage('messages')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="messages">
+                    <i data-lucide="message-circle" class="w-5 h-5 text-gray-400"></i>
+                    <span class="font-medium text-gray-300">Messages</span>
+                    <span class="ml-auto w-2 h-2 rounded-full bg-danger notification-badge"></span>
+                </button>
+                <button onclick="showPage('subscription')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="subscription">
+                    <i data-lucide="crown" class="w-5 h-5 text-gray-400"></i>
+                    <span class="font-medium text-gray-300">Subscription</span>
+                </button>
+                <button onclick="showPage('profile')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="profile">
+                    <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
+                    <span class="font-medium text-gray-300">My Profile</span>
+                </button>
+                <button onclick="showPage('settings')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="settings">
+                    <i data-lucide="settings" class="w-5 h-5 text-gray-400"></i>
+                    <span class="font-medium text-gray-300">Settings</span>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Support -->
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-darkLighter">
+            <div class="space-y-1">
+                <button onclick="showPage('support')" class="sidebar-item w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left">
+                    <i data-lucide="headphones" class="w-5 h-5 text-gray-400"></i>
+                    <span class="text-gray-300 text-sm">Contact Support</span>
+                </button>
+                <button onclick="showPage('privacy')" class="sidebar-item w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left">
+                    <i data-lucide="shield" class="w-5 h-5 text-gray-400"></i>
+                    <span class="text-gray-300 text-sm">Privacy Policy</span>
+                </button>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="lg:ml-72 min-h-screen pb-24">
+        <!-- Top Header -->
+        <header class="sticky top-0 z-40 glass border-b border-darkLighter">
+            <div class="flex items-center justify-between px-4 py-3">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg btn-secondary">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                    <div>
+                        <h2 id="pageTitle" class="font-bold text-lg">Home</h2>
+                        <p class="text-xs text-gray-400">Welcome back, Driver!</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <!-- Language Selector -->
+                    <div class="relative">
+                        <button onclick="toggleDropdown('langDropdown')" class="flex items-center gap-2 px-3 py-2 rounded-lg btn-secondary text-sm">
+                            <i data-lucide="globe" class="w-4 h-4"></i>
+                            <span id="currentLang">EN</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </button>
+                        <div id="langDropdown" class="hidden absolute right-0 mt-2 w-48 glass-card rounded-xl overflow-hidden shadow-xl">
+                            <div class="p-2 space-y-1">
+                                <button onclick="setLanguage('EN', 'English')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm">🇺🇸 English</button>
+                                <button onclick="setLanguage('ZH', '中文')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm">🇨🇳 中文</button>
+                                <button onclick="setLanguage('JA', '日本語')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm">🇯🇵 日本語</button>
+                                <button onclick="setLanguage('KO', '한국어')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm">🇰🇷 한국어</button>
+                                <button onclick="setLanguage('ES', 'Español')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm">🇪🇸 Español</button>
+                                <button onclick="setLanguage('FR', 'Français')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-darkLighter text-sm">🇫🇷 Français</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Notifications -->
+                    <button class="relative p-2 rounded-lg btn-secondary">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-danger rounded-full text-xs flex items-center justify-center">2</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Page Content Container -->
+        <div id="pageContent" class="p-4">
+            <!-- HOME PAGE -->
+            <div id="page-home" class="page active">
+                <!-- Vehicle Selection -->
+                <div class="glass-card rounded-2xl p-4 mb-4 animate-fade">
+                    <h3 class="font-semibold mb-3 flex items-center gap-2">
+                        <i data-lucide="car" class="w-5 h-5 text-primary"></i>
+                        Vehicle Mode
+                    </h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="selectVehicle('taxi')" class="vehicle-btn active p-4 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary flex flex-col items-center gap-2" data-vehicle="taxi">
+                            <i data-lucide="car" class="w-8 h-8 text-primary"></i>
+                            <span class="text-sm font-medium">Taxi</span>
+                        </button>
+                        <button onclick="selectVehicle('truck')" class="vehicle-btn p-4 rounded-xl bg-darkLighter border-2 border-transparent flex flex-col items-center gap-2" data-vehicle="truck">
+                            <i data-lucide="truck" class="w-8 h-8 text-gray-400"></i>
+                            <span class="text-sm font-medium text-gray-400">Truck</span>
+                        </button>
+                        <button onclick="selectVehicle('private')" class="vehicle-btn p-4 rounded-xl bg-darkLighter border-2 border-transparent flex flex-col items-center gap-2" data-vehicle="private">
+                            <i data-lucide="car-taxi-front" class="w-8 h-8 text-gray-400"></i>
+                            <span class="text-sm font-medium text-gray-400">Private</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Vehicle Info -->
+                <div class="glass-card rounded-2xl p-4 mb-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-semibold">Vehicle Information</h3>
+                        <button class="text-primary text-sm">Edit</button>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-xl bg-darkLighter flex items-center justify-center">
+                            <i data-lucide="car" class="w-8 h-8 text-primary"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-medium">Toyota Camry 2023</p>
+                            <p class="text-gray-400 text-sm">AB 1234 CD</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-xs px-2 py-0.5 rounded bg-success/20 text-success">Verified</span>
+                                <span class="text-xs px-2 py-0.5 rounded bg-primary/20 text-primary">Premium</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Map Area -->
+                <div class="map-container rounded-2xl h-64 mb-4 flex items-center justify-center relative overflow-hidden">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center">
+                            <i data-lucide="map-pin" class="w-12 h-12 text-primary mx-auto mb-2"></i>
+                            <p class="text-gray-400 text-sm">GPS Location Active</p>
+                            <p class="text-xs text-gray-500 mt-1">Lat: 22.3193° N, Lng: 114.1694° E</p>
+                        </div>
+                    </div>
+                    <div class="absolute top-3 right-3 flex gap-2">
+                        <button class="p-2 rounded-lg glass">
+                            <i data-lucide="maximize-2" class="w-4 h-4"></i>
+                        </button>
+                        <button class="p-2 rounded-lg glass">
+                            <i data-lucide="locate" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Available Orders -->
+                <div class="glass-card rounded-2xl p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold flex items-center gap-2">
+                            <i data-lucide="radio" class="w-5 h-5 text-primary"></i>
+                            Available Orders
+                        </h3>
+                        <span class="text-xs text-gray-400">3 nearby</span>
+                    </div>
+                    <div class="space-y-3">
+                        <!-- Order Card 1 -->
+                        <div class="order-card p-4 rounded-xl bg-darkLighter border border-transparent">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs text-gray-400">#ORD-2024-001</span>
+                                <span class="text-xs px-2 py-0.5 rounded bg-primary/20 text-primary">Taxi</span>
+                            </div>
+                            <div class="flex items-start gap-3 mb-3">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-2 h-2 rounded-full bg-success"></div>
+                                    <div class="w-0.5 h-8 bg-gray-600"></div>
+                                    <div class="w-2 h-2 rounded-full bg-danger"></div>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-400 mb-2">Central Station</p>
+                                    <p class="text-sm text-gray-400">Airport Terminal 2</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-lg font-bold text-primary">$28.50</span>
+                                    <span class="text-xs text-gray-500">~15 min</span>
+                                </div>
+                                <button onclick="acceptOrder('ORD-2024-001')" class="px-4 py-2 rounded-lg btn-primary text-sm font-medium">
+                                    Accept
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Order Card 2 -->
+                        <div class="order-card p-4 rounded-xl bg-darkLighter border border-transparent">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs text-gray-400">#ORD-2024-002</span>
+                                <span class="text-xs px-2 py-0.5 rounded bg-accent/20 text-accent">Truck</span>
+                            </div>
+                            <div class="flex items-start gap-3 mb-3">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-2 h-2 rounded-full bg-success"></div>
+                                    <div class="w-0.5 h-8 bg-gray-600"></div>
+                                    <div class="w-2 h-2 rounded-full bg-danger"></div>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-400 mb-2">Warehouse District</p>
+                                    <p class="text-sm text-gray-400">Shopping Mall</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-lg font-bold text-primary">$45.00</span>
+                                    <span class="text-xs text-gray-500">~25 min</span>
+                                </div>
+                                <button onclick="acceptOrder('ORD-2024-002')" class="px-4 py-2 rounded-lg btn-primary text-sm font-medium">
+                                    Accept
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ORDERS PAGE -->
+            <div id="page-orders" class="page">
+                <div class="glass-card rounded-2xl p-4 mb-4">
+                    <h3 class="font-semibold mb-3">Filter Orders</h3>
+                    <div class="flex gap-2 overflow-x-auto pb-2">
+                        <button class="px-4 py-2 rounded-full btn-primary text-sm whitespace-nowrap">All</button>
+                        <button class="px-4 py-2 rounded-full btn-secondary text-sm whitespace-nowrap">Pending</button>
+                        <button class="px-4 py-2 rounded-full btn-secondary text-sm whitespace-nowrap">In Progress</button>
+                        <button class="px-4 py-2 rounded-full btn-secondary text-sm whitespace-nowrap">Completed</button>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="glass-card rounded-xl p-4 order-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-mono text-xs text-gray-400">#ORD-2024-003</span>
+                            <span class="text-xs px-2 py-0.5 rounded bg-warning/20 text-warning">In Progress</span>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-full bg-darkLighter flex items-center justify-center">
+                                <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium">John Smith</p>
+                                <p class="text-xs text-gray-400">+852 9123 4567</p>
+                            </div>
+                            <button class="p-2 rounded-lg btn-secondary">
+                                <i data-lucide="phone" class="w-4 h-4 text-success"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Pickup</p>
+                                <p class="text-sm">Mong Kok Station</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-500">Drop-off</p>
+                                <p class="text-sm">Tsim Sha Tsui</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-darkLighter">
+                            <span class="text-lg font-bold text-primary">$18.50</span>
+                            <button onclick="openNavigation()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg btn-secondary text-sm">
+                                <i data-lucide="navigation" class="w-4 h-4"></i>
+                                Navigate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ACTIVE ORDERS PAGE -->
+            <div id="page-active" class="page">
+                <div class="glass-card rounded-2xl p-4 mb-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold">Current Active Order</h3>
+                        <span class="flex items-center gap-1 text-success text-sm">
+                            <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+                            Live
+                        </span>
+                    </div>
+                    
+                    <div class="map-container rounded-xl h-40 mb-4 flex items-center justify-center">
+                        <div class="text-center">
+                            <i data-lucide="map" class="w-10 h-10 text-primary mx-auto mb-2"></i>
+                            <p class="text-sm text-gray-400">Live GPS Tracking</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-darkLighter flex items-center justify-center">
+                                <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium">John Smith</p>
+                                <p class="text-xs text-gray-400">+852 9123 4567</p>
+                            </div>
+                            <button class="p-2 rounded-lg btn-secondary">
+                                <i data-lucide="phone" class="w-5 h-5 text-success"></i>
+                            </button>
+                            <button class="p-2 rounded-lg btn-secondary">
+                                <i data-lucide="message-circle" class="w-5 h-5 text-primary"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="p-3 rounded-xl bg-darkLighter">
+                                <p class="text-xs text-gray-500">Pickup</p>
+                                <p class="text-sm font-medium">Mong Kok Station</p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-darkLighter">
+                                <p class="text-xs text-gray-500">Drop-off</p>
+                                <p class="text-sm font-medium">Tsim Sha Tsui</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-primary/10 border border-primary/30">
+                            <span class="text-gray-400">Estimated Fare</span>
+                            <span class="text-xl font-bold text-primary">$18.50</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="openNavigation()" class="py-3 rounded-xl btn-primary font-medium flex items-center justify-center gap-2">
+                                <i data-lucide="navigation" class="w-5 h-5"></i>
+                                Navigate
+                            </button>
+                            <button onclick="showCancelModal()" class="py-3 rounded-xl btn-secondary font-medium flex items-center justify-center gap-2 text-danger border-danger/50">
+                                <i data-lucide="x" class="w-5 h-5"></i>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- COMPLETED PAGE -->
+            <div id="page-completed" class="page">
+                <div class="glass-card rounded-2xl p-4 mb-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold">Completed Orders</h3>
+                        <span class="text-sm text-gray-400">This Month: 47</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="p-4 rounded-xl bg-darkLighter border-l-4 border-success">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-mono text-xs text-gray-400">#ORD-2024-001</span>
+                                <span class="text-success text-sm">Completed</span>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-1">Central → Wan Chai</p>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold">$22.00</span>
+                                <span class="text-xs text-gray-500">Today, 10:30 AM</span>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-darkLighter border-l-4 border-success">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-mono text-xs text-gray-400">#ORD-2024-002</span>
+                                <span class="text-success text-sm">Completed</span>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-1">Admiralty → Causeway Bay</p>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold">$15.50</span>
+                                <span class="text-xs text-gray-500">Yesterday, 3:45 PM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CANCELLED PAGE -->
+            <div id="page-cancelled" class="page">
+                <div class="glass-card rounded-2xl p-4">
+                    <h3 class="font-semibold mb-4">Cancelled Orders</h3>
+                    <div class="text-center py-8">
+                        <i data-lucide="check-circle" class="w-16 h-16 text-gray-600 mx-auto mb-3"></i>
+                        <p class="text-gray-400">No cancelled orders</p>
+                        <p class="text-sm text-gray-500 mt-1">Great job keeping your acceptance rate high!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- MESSAGES PAGE -->
+            <div id="page-messages" class="page">
+                <div class="glass-card rounded-2xl p-4">
+                    <h3 class="font-semibold mb-4">Messages</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 p-3 rounded-xl bg-darkLighter cursor-pointer hover:bg-darkLighter/80 transition">
+                            <div class="relative">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primaryLight flex items-center justify-center">
+                                    <span class="font-bold">JS</span>
+                                </div>
+                                <span class="absolute -top-1 -right-1 w-4 h-4 bg-danger rounded-full text-xs flex items-center justify-center">2</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <p class="font-medium">John Smith</p>
+                                    <span class="text-xs text-gray-500">2 min ago</span>
+                                </div>
+                                <p class="text-sm text-gray-400 truncate">I'm at the main entrance...</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 p-3 rounded-xl bg-darkLighter cursor-pointer hover:bg-darkLighter/80 transition">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-success flex items-center justify-center">
+                                <span class="font-bold text-dark">ML</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <p class="font-medium">Mary Lee</p>
+                                    <span class="text-xs text-gray-500">1 hour ago</span>
+                                </div>
+                                <p class="text-sm text-gray-400 truncate">Thank you for the ride!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SUBSCRIPTION PAGE -->
+            <div id="page-subscription" class="page">
+                <div class="glass-card rounded-2xl p-4 mb-4">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-warning flex items-center justify-center">
+                            <i data-lucide="crown" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Subscription Plans</h3>
+                            <p class="text-sm text-gray-400">Choose your plan to continue driving</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 1 Month -->
+                    <div class="subscription-card glass-card rounded-2xl p-5 cursor-pointer" onclick="openStripeLink('https://buy.stripe.com/fZu7sL6qhh1p5DL8lV6J20c')">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-lg font-bold">1 Month</span>
+                            <span class="text-2xl font-bold text-primary">$1</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-3">Perfect for trying out</p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-success"></i> Full platform access</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-success"></i> All vehicle types</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-success"></i> Priority support</li>
+                        </ul>
+                        <button class="w-full mt-4 py-2 rounded-xl btn-secondary text-sm font-medium">Subscribe Now</button>
+                    </div>
+                    
+                    <!-- 3 Months -->
+                    <div class="subscription-card glass-card rounded-2xl p-5 cursor-pointer" onclick="openStripeLink('https://buy.stripe.com/9B68wPdSJaD11nvgSr6J20d')">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-lg font-bold">3 Months</span>
+                            <div class="text-right">
+                                <span class="text-2xl font-bold text-primary">$2.6</span>
+                                <p class="text-xs text-gray-500">Save 13%</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-3">Great value for regular drivers</p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-success"></i> Full platform access</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-success"></i> All vehicle types</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-success"></i> Priority support</li>
+                        </ul>
+                        <button class="w-full mt-4 py-2 rounded-xl btn-secondary text-sm font-medium">Subscribe Now</button>
+                    </div>
+                    
+                    <!-- 6 Months -->
+                    <div class="subscription-card popular glass-card rounded-2xl p-5 cursor-pointer relative overflow-hidden" onclick="openStripeLink('https://buy.stripe.com/8x2eVd9CtaD14zH45F6J203')">
+                        <div class="absolute top-0 right-0 bg-primary text-white text-xs px-3 py-1 rounded-bl-lg font-medium">Popular</div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-lg font-bold">6 Months</span>
+                            <div class="text-right">
+                                <span class="text-2xl font-bold text-primary">$5</span>
+                                <p class="text-xs text-gray-500">Save 17%</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-3">Best for committed drivers</p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-success"></i> Full platform access</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-success"></i> All vehicle types</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-success"></i> Priority support</li>
+                            <li class="flex items-center gap-2"><i data-lucide="star" class="w-4 h-4 text-warning"></i> Featured driver badge</li>
+                        </ul>
+                        <button class="w-full mt-4 py-2 rounded-xl btn-primary text-sm font-medium">Subscribe Now</button>
+                    </div>
+                    
+                    <!-- 12 Months -->
+                    <div class="subscription-card glass-card rounded-2xl p-5 cursor-pointer" onclick="openStripeLink('https://buy.stripe.com/4gM14n4i93az8PX0Tt6J205')">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-lg font-bold">12 Months</span>
+                            <div class="text-right">
+                                <span class="text-2xl font-bold text-primary">$10</span>
+                                <p class="text-xs text-gray-500">Save 17%</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-3">Maximum savings for pros</p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-success"></i> Full platform access</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-success"></i> All vehicle types</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-success"></i> VIP support</li>
+                            <li class="flex items-center gap-2"><i data-lucide="star" class="w-4 h-4 text-warning"></i> Premium driver badge</li>
+                        </ul>
+                        <button class="w-full mt-4 py-2 rounded-xl btn-secondary text-sm font-medium">Subscribe Now</button>
+                    </div>
+                </div>
+                
+                <!-- VIP Code Section (Hidden from visible UI) -->
+                <div id="vipCodeSection" class="hidden">
+                    <!-- VIP888 code functionality - backend only -->
+                </div>
+            </div>
+            
+            <!-- PROFILE PAGE -->
+            <div id="page-profile" class="page">
+                <div class="glass-card rounded-2xl p-4 mb-4">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primaryLight flex items-center justify-center text-2xl font-bold">
+                            JD
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-xl">John Driver</h3>
+                            <p class="text-gray-400 text-sm">Driver since 2024</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-xs px-2 py-0.5 rounded bg-success/20 text-success">Verified</span>
+                                <span class="text-xs px-2 py-0.5 rounded bg-warning/20 text-warning">4.9 ★</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Phone Number</label>
+                            <input type="tel" value="+852 9123 4567" class="w-full px-4 py-3 rounded-xl bg-darkLighter border border-transparent focus:border-primary focus:outline-none transition">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Email</label>
+                            <input type="email" value="john.driver@email.com" class="w-full px-4 py-3 rounded-xl bg-darkLighter border border-transparent focus:border-primary focus:outline-none transition">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Address (Optional)</label>
+                            <input type="text" placeholder="Enter your address" class="w-full px-4 py-3 rounded-xl bg-darkLighter border border-transparent focus:border-primary focus:outline-none transition">
+                        </div>
+                        
+                        <!-- KYC Status -->
+                        <div class="p-4 rounded-xl bg-darkLighter border border-success/30">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="shield-check" class="w-8 h-8 text-success"></i>
+                                <div>
+                                    <p class="font-medium">KYC Verified</p>
+                                    <p class="text-xs text-gray-400">Your identity has been confirmed via Stripe</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full py-3 rounded-xl btn-primary font-medium">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SETTINGS PAGE -->
+            <div id="page-settings" class="page">
+                <div class="glass-card rounded-2xl p-4 mb-4">
+                    <h3 class="font-semibold mb-4">App Settings</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-darkLighter">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="globe" class="w-5 h-5 text-gray-400"></i>
+                                <span>Language</span>
+                            </div>
+                            <select class="bg-transparent border-none text-right focus:outline-none text-gray-400">
+                                <option>English</option>
+                                <option>中文</option>
+                                <option>日本語</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-darkLighter">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="map-pin" class="w-5 h-5 text-gray-400"></i>
+                                <span>Service Region</span>
+                            </div>
+                            <select class="bg-transparent border-none text-right focus:outline-none text-gray-400">
+                                <option>Hong Kong</option>
+                                <option>Taiwan</option>
+                                <option>Singapore</option>
+                                <option>United States</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-darkLighter">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="bell" class="w-5 h-5 text-gray-400"></i>
+                                <span>Notifications</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-darkLighter">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="moon" class="w-5 h-5 text-gray-400"></i>
+                                <span>Dark Mode</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-4">
+                    <h3 class="font-semibold mb-4">Account</h3>
+                    <div class="space-y-3">
+                        <button class="w-full flex items-center justify-between p-3 rounded-xl bg-darkLighter hover:bg-darkLighter/80 transition">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="credit-card" class="w-5 h-5 text-gray-400"></i>
+                                <span>Payment Methods</span>
+                            </div>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
+                        </button>
+                        <button class="w-full flex items-center justify-between p-3 rounded-xl bg-darkLighter hover:bg-darkLighter/80 transition">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="file-text" class="w-5 h-5 text-gray-400"></i>
+                                <span>Documents</span>
+                            </div>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
+                        </button>
+                        <button onclick="showPage('privacy')" class="w-full flex items-center justify-between p-3 rounded-xl bg-darkLighter hover:bg-darkLighter/80 transition">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="shield" class="w-5 h-5 text-gray-400"></i>
+                                <span>Privacy Policy</span>
+                            </div>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
+                        </button>
+                        <button class="w-full flex items-center justify-between p-3 rounded-xl bg-darkLighter hover:bg-darkLighter/80 transition text-danger">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="log-out" class="w-5 h-5"></i>
+                                <span>Log Out</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SUPPORT PAGE -->
+            <div id="page-support" class="page">
+                <div class="glass-card rounded-2xl p-4 mb-4">
+                    <h3 class="font-semibold mb-4">Contact Support</h3>
+                    <div class="space-y-3">
+                        <button class="w-full flex items-center gap-4 p-4 rounded-xl bg-darkLighter hover:bg-darkLighter/80 transition">
+                            <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                                <i data-lucide="headphones" class="w-6 h-6 text-primary"></i>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-medium">Uber Support</p>
+                                <p class="text-sm text-gray-400">Contact Uber customer service</p>
+                            </div>
+                        </button>
+                        <button class="w-full flex items-center gap-4 p-4 rounded-xl bg-darkLighter hover:bg-darkLighter/80 transition">
+                            <div class="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center">
+                                <i data-lucide="message-square" class="w-6 h-6 text-accent"></i>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-medium">Live Chat</p>
+                                <p class="text-sm text-gray-400">Chat with our support team</p>
+                            </div>
+                        </button>
+                        <button class="w-full flex items-center gap-4 p-4 rounded-xl bg-darkLighter hover:bg-darkLighter/80 transition">
+                            <div class="w-12 h-12 rounded-xl bg-warning/20 flex items-center justify-center">
+                                <i data-lucide="mail" class="w-6 h-6 text-warning"></i>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-medium">Email Support</p>
+                                <p class="text-sm text-gray-400">support@dadataxi.com</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PRIVACY POLICY PAGE -->
+            <div id="page-privacy" class="page">
+                <div class="glass-card rounded-2xl p-4">
+                    <h3 class="font-semibold mb-4 flex items-center gap-2">
+                        <i data-lucide="shield" class="w-5 h-5 text-primary"></i>
+                        Privacy Policy
+                    </h3>
+                    <div class="prose prose-invert prose-sm max-w-none space-y-4 text-gray-300">
+                        <p class="text-xs text-gray-500">Last updated: January 2024</p>
+                        
+                        <h4 class="font-semibold text-white">1. Information We Collect</h4>
+                        <p>DaDa Taxi collects information you provide directly, including name, phone number, email, vehicle information, and payment details. We also collect location data, trip history, and usage analytics.</p>
+                        
+                        <h4 class="font-semibold text-white">2. How We Use Your Information</h4>
+                        <p>We use your information to provide transportation services, process payments, verify your identity through Stripe KYC, communicate with you, and improve our services.</p>
+                        
+                        <h4 class="font-semibold text-white">3. Information Sharing</h4>
+                        <p>We share necessary information with Uber API for ride coordination, Stripe for payment processing and identity verification, and relevant authorities when required by law.</p>
+                        
+                        <h4 class="font-semibold text-white">4. Data Security</h4>
+                        <p>We implement industry-standard security measures to protect your data. All communications are encrypted, and sensitive data is stored securely.</p>
+                        
+                        <h4 class="font-semibold text-white">5. Your Rights</h4>
+                        <p>You have the right to access, correct, or delete your personal information. Contact us at privacy@dadataxi.com for any privacy-related requests.</p>
+                        
+                        <h4 class="font-semibold text-white">6. Cookies & Tracking</h4>
+                        <p>We use cookies and similar technologies to improve user experience and analyze platform usage.</p>
+                        
+                        <h4 class="font-semibold text-white">7. Third-Party Services</h4>
+                        <p>Our platform integrates with Uber API, Stripe payment processing, Google Maps navigation, and advertising partners. Each service has its own privacy policy.</p>
+                        
+                        <h4 class="font-semibold text-white">8. Children's Privacy</h4>
+                        <p>Our services are not intended for users under 18 years of age.</p>
+                        
+                        <h4 class="font-semibold text-white">9. Changes to This Policy</h4>
+                        <p>We may update this policy periodically. Continued use of our services constitutes acceptance of any changes.</p>
+                        
+                        <h4 class="font-semibold text-white">10. Contact Us</h4>
+                        <p>For questions about this Privacy Policy, contact us at:</p>
+                        <p class="text-primary">privacy@dadataxi.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 lg:left-72 glass border-t border-darkLighter z-40">
+        <div class="flex items-center justify-around py-2">
+            <button onclick="showPage('home')" class="nav-item active flex flex-col items-center py-2 px-4" data-nav="home">
+                <i data-lucide="home" class="w-6 h-6"></i>
+                <span class="text-xs mt-1">Home</span>
+                <div class="nav-indicator h-1 bg-primary rounded-full mt-2 transition-all opacity-0 w-0"></div>
+            </button>
+            <button onclick="showPage('active')" class="nav-item flex flex-col items-center py-2 px-4" data-nav="active">
+                <i data-lucide="navigation" class="w-6 h-6 text-gray-400"></i>
+                <span class="text-xs mt-1 text-gray-400">Active</span>
+                <div class="nav-indicator h-1 bg-primary rounded-full mt-2 transition-all opacity-0 w-0"></div>
+            </button>
+            <button onclick="showPage('orders')" class="nav-item flex flex-col items-center py-2 px-4 relative" data-nav="orders">
+                <i data-lucide="clipboard-list" class="w-6 h-6 text-gray-400"></i>
+                <span class="text-xs mt-1 text-gray-400">Orders</span>
+                <span class="absolute top-1 right-3 w-2 h-2 rounded-full bg-primary"></span>
+                <div class="nav-indicator h-1 bg-primary rounded-full mt-2 transition-all opacity-0 w-0"></div>
+            </button>
+            <button onclick="showPage('messages')" class="nav-item flex flex-col items-center py-2 px-4 relative" data-nav="messages">
+                <i data-lucide="message-circle" class="w-6 h-6 text-gray-400"></i>
+                <span class="text-xs mt-1 text-gray-400">Chat</span>
+                <span class="absolute top-1 right-3 w-2 h-2 rounded-full bg-danger"></span>
+                <div class="nav-indicator h-1 bg-primary rounded-full mt-2 transition-all opacity-0 w-0"></div>
+            </button>
+            <button onclick="showPage('profile')" class="nav-item flex flex-col items-center py-2 px-4" data-nav="profile">
+                <i data-lucide="user" class="w-6 h-6 text-gray-400"></i>
+                <span class="text-xs mt-1 text-gray-400">Profile</span>
+                <div class="nav-indicator h-1 bg-primary rounded-full mt-2 transition-all opacity-0 w-0"></div>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Cancel Order Modal -->
+    <div id="cancelModal" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-4">
+        <div class="glass-card rounded-2xl p-6 max-w-sm w-full animate-fade">
+            <h3 class="font-bold text-lg mb-2">Cancel Order?</h3>
+            <p class="text-gray-400 text-sm mb-4">Are you sure you want to cancel this order? It will be available for other drivers.</p>
+            <div class="mb-4">
+                <label class="text-xs text-gray-500 block mb-2">Reason (Optional)</label>
+                <select class="w-full px-4 py-3 rounded-xl bg-darkLighter border border-transparent">
+                    <option>Traffic delay</option>
+                    <option>Vehicle issue</option>
+                    <option>Customer request</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeCancelModal()" class="flex-1 py-3 rounded-xl btn-secondary font-medium">Keep Order</button>
+                <button onclick="confirmCancel()" class="flex-1 py-3 rounded-xl bg-danger font-medium">Cancel Order</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Page Navigation
+        function showPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            const selectedPage = document.getElementById('page-' + pageName);
+            if (selectedPage) {
+                selectedPage.classList.add('active');
+            }
+            
+            // Update sidebar
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+                const icon = item.querySelector('[data-lucide]');
+                if (icon) {
+                    icon.classList.remove('text-primary');
+                    icon.classList.add('text-gray-400');
+                }
+                const text = item.querySelector('span');
+                if (text) {
+                    text.classList.remove('text-white');
+                    text.classList.add('text-gray-300');
+                }
+            });
+            
+            const activeItem = document.querySelector(`.sidebar-item[data-page="${pageName}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+                const icon = activeItem.querySelector('[data-lucide]');
+                if (icon) {
+                    icon.classList.remove('text-gray-400');
+                    icon.classList.add('text-primary');
+                }
+                const text = activeItem.querySelector('span');
+                if (text) {
+                    text.classList.remove('text-gray-300');
+                    text.classList.add('text-white');
+                }
+            }
+            
+            // Update bottom nav
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                const icon = item.querySelector('[data-lucide]');
+                const span = item.querySelector('span:not(.nav-indicator)');
+                if (icon) icon.classList.remove('text-primary');
+                if (icon) icon.classList.add('text-gray-400');
+                if (span) span.classList.remove('text-white');
+                if (span) span.classList.add('text-gray-400');
+                const indicator = item.querySelector('.nav-indicator');
+                if (indicator) {
+                    indicator.classList.remove('opacity-100', 'w-full');
+                    indicator.classList.add('opacity-0', 'w-0');
+                }
+            });
+            
+            const activeNav = document.querySelector(`.nav-item[data-nav="${pageName}"]`);
+            if (activeNav) {
+                activeNav.classList.add('active');
+                const icon = activeNav.querySelector('[data-lucide]');
+                const span = activeNav.querySelector('span:not(.nav-indicator)');
+                if (icon) {
+                    icon.classList.remove('text-gray-400');
+                    icon.classList.add('text-primary');
+                }
+                if (span) {
+                    span.classList.remove('text-gray-400');
+                    span.classList.add('text-white');
+                }
+                const indicator = activeNav.querySelector('.nav-indicator');
+                if (indicator) {
+                    indicator.classList.remove('opacity-0', 'w-0');
+                    indicator.classList.add('opacity-100', 'w-full');
+                }
+            }
+            
+            // Update page title
+            const titles = {
+                home: 'Home',
+                orders: 'My Orders',
+                active: 'Active Orders',
+                completed: 'Completed Orders',
+                cancelled: 'Cancelled Orders',
+                messages: 'Messages',
+                subscription: 'Subscription',
+                profile: 'My Profile',
+                settings: 'Settings',
+                support: 'Support',
+                privacy: 'Privacy Policy'
+            };
+            document.getElementById('pageTitle').textContent = titles[pageName] || 'Home';
+            
+            // Close sidebar on mobile
+            closeSidebar();
+        }
+        
+        // Sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+        
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth < 1024) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        }
+        
+        // Status toggle
+        function toggleStatus() {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            if (dot.classList.contains('status-online')) {
+                dot.classList.remove('status-online');
+                dot.classList.add('status-offline');
+                text.textContent = 'Offline';
+                text.classList.remove('text-success');
+                text.classList.add('text-gray-400');
+            } else {
+                dot.classList.remove('status-offline');
+                dot.classList.add('status-online');
+                text.textContent = 'Online';
+                text.classList.remove('text-gray-400');
+                text.classList.add('text-success');
+            }
+        }
+        
+        // Vehicle selection
+        function selectVehicle(type) {
+            document.querySelectorAll('.vehicle-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-gradient-to-br', 'from-primary/20', 'to-primary/5', 'border-primary');
+                btn.classList.add('bg-darkLighter', 'border-transparent');
+                const icon = btn.querySelector('[data-lucide]');
+                const span = btn.querySelector('span');
+                if (icon) icon.classList.replace('text-primary', 'text-gray-400');
+                if (span) span.classList.replace('text-white', 'text-gray-400');
+            });
+            
+            const selectedBtn = document.querySelector(`.vehicle-btn[data-vehicle="${type}"]`);
+            if (selectedBtn) {
+                selectedBtn.classList.add('active', 'bg-gradient-to-br', 'from-primary/20', 'to-primary/5', 'border-primary');
+                selectedBtn.classList.remove('bg-darkLighter', 'border-transparent');
+                const icon = selectedBtn.querySelector('[data-lucide]');
+                const span = selectedBtn.querySelector('span');
+                if (icon) icon.classList.replace('text-gray-400', 'text-primary');
+                if (span) span.classList.replace('text-gray-400', 'text-white');
+            }
+        }
+        
+        // Accept order
+        function acceptOrder(orderId) {
+            alert(`Order ${orderId} accepted! Navigate to pickup location.`);
+            showPage('active');
+        }
+        
+        // Open navigation
+        function openNavigation() {
+            // Would integrate with Google Maps
+            window.open('https://www.google.com/maps', '_blank');
+        }
+        
+        // Cancel modal
+        function showCancelModal() {
+            document.getElementById('cancelModal').classList.remove('hidden');
+            document.getElementById('cancelModal').classList.add('flex');
+        }
+        
+        function closeCancelModal() {
+            document.getElementById('cancelModal').classList.add('hidden');
+            document.getElementById('cancelModal').classList.remove('flex');
+        }
+        
+        function confirmCancel() {
+            alert('Order cancelled successfully. It is now available for other drivers.');
+            closeCancelModal();
+            showPage('orders');
+        }
+        
+        // Language
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            dropdown.classList.toggle('hidden');
+        }
+        
+        function setLanguage(code, name) {
+            document.getElementById('currentLang').textContent = code;
+            toggleDropdown('langDropdown');
+        }
+        
+        // Stripe links
+        function openStripeLink(url) {
+            window.open(url, '_blank');
+        }
+        
+        // Close dropdowns on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#langDropdown') && !e.target.closest('[onclick*="langDropdown"]')) {
+                document.getElementById('langDropdown').classList.add('hidden');
+            }
+        });
+        
+        // Handle VIP code (backend validation only)
+        function validateInviteCode(code) {
+            const VIP_CODES = ['VIP888']; // Hidden codes
+            return VIP_CODES.includes(code.toUpperCase());
+        }
+    </script>
+</body>
+</html>
