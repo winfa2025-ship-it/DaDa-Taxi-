@@ -201,8 +201,11 @@
     </style>
 </head>
 <body class="bg-dark text-white min-h-screen">
+    <!-- Overlay for mobile -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden" onclick="closeSidebar()"></div>
+    
     <!-- Sidebar Navigation -->
-    <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-darkLight z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-darkLight z-50 transform -translate-x-full transition-transform duration-300" style="transform: translateX(-100%);">
         <div class="p-6 border-b border-darkLighter">
             <div class="flex items-center gap-3">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primaryLight flex items-center justify-center glow-orange">
@@ -251,42 +254,42 @@
         <!-- Navigation Menu -->
         <nav class="mt-6 px-3">
             <div class="space-y-1">
-                <button onclick="showPage('home')" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="home">
+                <button onclick="showPageWithClose('home')" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="home">
                     <i data-lucide="home" class="w-5 h-5 text-primary"></i>
                     <span class="font-medium">Home</span>
                 </button>
-                <button onclick="showPage('orders')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="orders">
+                <button onclick="showPageWithClose('orders')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="orders">
                     <i data-lucide="clipboard-list" class="w-5 h-5 text-gray-400"></i>
                     <span class="font-medium text-gray-300">My Orders</span>
                     <span class="ml-auto bg-primary text-white text-xs px-2 py-0.5 rounded-full">3</span>
                 </button>
-                <button onclick="showPage('active')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="active">
+                <button onclick="showPageWithClose('active')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="active">
                     <i data-lucide="navigation" class="w-5 h-5 text-gray-400"></i>
                     <span class="font-medium text-gray-300">Active Orders</span>
                     <span class="ml-auto w-2 h-2 rounded-full bg-success"></span>
                 </button>
-                <button onclick="showPage('completed')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="completed">
+                <button onclick="showPageWithClose('completed')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="completed">
                     <i data-lucide="check-circle" class="w-5 h-5 text-gray-400"></i>
                     <span class="font-medium text-gray-300">Completed</span>
                 </button>
-                <button onclick="showPage('cancelled')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="cancelled">
+                <button onclick="showPageWithClose('cancelled')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="cancelled">
                     <i data-lucide="x-circle" class="w-5 h-5 text-gray-400"></i>
                     <span class="font-medium text-gray-300">Cancelled</span>
                 </button>
-                <button onclick="showPage('messages')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="messages">
+                <button onclick="showPageWithClose('messages')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="messages">
                     <i data-lucide="message-circle" class="w-5 h-5 text-gray-400"></i>
                     <span class="font-medium text-gray-300">Messages</span>
                     <span class="ml-auto w-2 h-2 rounded-full bg-danger notification-badge"></span>
                 </button>
-                <button onclick="showPage('subscription')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="subscription">
+                <button onclick="showPageWithClose('subscription')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="subscription">
                     <i data-lucide="crown" class="w-5 h-5 text-gray-400"></i>
                     <span class="font-medium text-gray-300">Subscription</span>
                 </button>
-                <button onclick="showPage('profile')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="profile">
+                <button onclick="showPageWithClose('profile')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="profile">
                     <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
                     <span class="font-medium text-gray-300">My Profile</span>
                 </button>
-                <button onclick="showPage('settings')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="settings">
+                <button onclick="showPageWithClose('settings')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-page="settings">
                     <i data-lucide="settings" class="w-5 h-5 text-gray-400"></i>
                     <span class="font-medium text-gray-300">Settings</span>
                 </button>
@@ -296,11 +299,11 @@
         <!-- Support -->
         <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-darkLighter">
             <div class="space-y-1">
-                <button onclick="showPage('support')" class="sidebar-item w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left">
+                <button onclick="showPageWithClose('support')" class="sidebar-item w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left">
                     <i data-lucide="headphones" class="w-5 h-5 text-gray-400"></i>
                     <span class="text-gray-300 text-sm">Contact Support</span>
                 </button>
-                <button onclick="showPage('privacy')" class="sidebar-item w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left">
+                <button onclick="showPageWithClose('privacy')" class="sidebar-item w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left">
                     <i data-lucide="shield" class="w-5 h-5 text-gray-400"></i>
                     <span class="text-gray-300 text-sm">Privacy Policy</span>
                 </button>
@@ -309,12 +312,12 @@
     </aside>
     
     <!-- Main Content -->
-    <main class="lg:ml-72 min-h-screen pb-24">
+    <main class="min-h-screen pb-24">
         <!-- Top Header -->
         <header class="sticky top-0 z-40 glass border-b border-darkLighter">
             <div class="flex items-center justify-between px-4 py-3">
                 <div class="flex items-center gap-3">
-                    <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg btn-secondary">
+                    <button onclick="toggleSidebar()" class="p-2 rounded-lg btn-secondary">
                         <i data-lucide="menu" class="w-5 h-5"></i>
                     </button>
                     <div>
@@ -1149,16 +1152,33 @@
         }
         
         // Sidebar toggle
+        let sidebarOpen = false;
+        
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('-translate-x-full');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebarOpen) {
+                closeSidebar();
+            } else {
+                sidebar.style.transform = 'translateX(0)';
+                overlay.classList.remove('hidden');
+                sidebarOpen = true;
+            }
         }
         
         function closeSidebar() {
             const sidebar = document.getElementById('sidebar');
-            if (window.innerWidth < 1024) {
-                sidebar.classList.add('-translate-x-full');
-            }
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.style.transform = 'translateX(-100%)';
+            overlay.classList.add('hidden');
+            sidebarOpen = false;
+        }
+        
+        // Close sidebar when clicking menu items
+        function showPageWithClose(pageName) {
+            showPage(pageName);
+            closeSidebar();
         }
         
         // Status toggle
